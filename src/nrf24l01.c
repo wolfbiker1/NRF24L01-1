@@ -27,7 +27,8 @@ NRF_RESULT nrf_init(nrf24l01* dev, nrf24l01_config* config) {
 
     uint8_t config_reg = 0;
 
-    while ((config_reg & 2) == 0) { // wait for powerup
+    while ((config_reg & 2) == 0) 
+    {
         nrf_read_register(dev, NRF_CONFIG, &config_reg);
     }
 
@@ -62,25 +63,30 @@ NRF_RESULT nrf_init(nrf24l01* dev, nrf24l01_config* config) {
 }
 
 NRF_RESULT nrf_send_command(nrf24l01* dev, NRF_COMMAND cmd, const uint8_t* tx,
-                            uint8_t* rx, uint8_t len) {
-    uint8_t myTX[len + 1];
-    uint8_t myRX[len + 1];
-    myTX[0] = cmd;
+                            uint8_t* rx, uint8_t payloadLength) 
+{
+    // @todo: internal buffers needed?
+    uint8_t txBufferInternal[payloadLength + 1];
+    uint8_t rxBufferInternal[payloadLength + 1];
+    txBufferInternal[0] = cmd;
 
     int i = 0;
-    for (i = 0; i < len; i++) {
-        myTX[1 + i] = tx[i];
-        myRX[i]     = 0;
+
+    for (i = 0; i < payloadLength; i++) 
+    {
+        txBufferInternal[1 + i] = tx[i];
+        rxBufferInternal[i]     = 0;
     }
 
     csn_reset(dev);
 
-    if (HAL_SPI_TransmitReceive(dev->config.spi, myTX, myRX, 1 + len,
-                                dev->config.spi_timeout) != HAL_OK) {
+    if (HAL_SPI_TransmitReceive(dev->config.spi, txBufferInternal, rxBufferInternal, 1 + len,
+                                dev->config.spi_timeout) != HAL_OK) 
+    {
         return NRF_ERROR;
     }
 
-    for (i = 0; i < len; i++) { rx[i] = myRX[1 + i]; }
+    for (i = 0; i < payloadLength; i++) { rx[i] = rxBufferInternal[1 + i]; }
 
     csn_set(dev);
 

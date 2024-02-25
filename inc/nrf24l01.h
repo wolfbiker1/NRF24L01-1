@@ -163,7 +163,7 @@ NRF_RESULT nrf_send_packet_noack(nrf24l01* dev, const uint8_t* data);
 /* Non-Blocking Data Sending */
 NRF_RESULT nrf_push_packet(nrf24l01* dev, const uint8_t* data);
 
-/* LOW LEVEL STUFF (you don't have to look in here...)*/
+/* LOW LEVEL STUFF */
 NRF_RESULT nrf_send_command(nrf24l01* dev, NRF_COMMAND cmd, const uint8_t* tx,
                             uint8_t* rx, uint8_t len);
 /* CMD */
